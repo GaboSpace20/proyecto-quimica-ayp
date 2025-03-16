@@ -1,0 +1,108 @@
+classDiagram
+    class Reactivo {
+        - id: int
+        - nombre: str
+        - descripcion: str
+        - costo: float
+        - categoria: str
+        - inventario: float
+        - unidad_medida: str
+        - caducidad: str
+        - minimo: int
+        - conversiones_posibles: list
+        + __init__(id: int, nombre: str, descripcion: str, costo: float, categoria: str, inventario: float, unidad_medida: str, caducidad: str, minimo: int, conversiones_posibles: list)
+        + actualizar_inventario(cantidad: float)
+        + cambiar_unidad_medida(nueva_unidad: str)
+        + __str__() : str
+        + esta_bajo_minimo() : bool
+    }
+
+    class GestorReactivos {
+        - reactivos: dict
+        - ruta_archivo: str
+        - api_url: str
+        + __init__(ruta_archivo: str, api_url: str)
+        + agregar_reactivo(reactivo: Reactivo)
+        + eliminar_reactivo(nombre: str)
+        + editar_reactivo(nombre: str, **kwargs)
+        + buscar_reactivo(nombre: str) : Reactivo
+        + listar_reactivos() : list
+        + verificar_minimos() : list
+        + cargar_desde_archivo()
+        + guardar_en_archivo()
+        + cargar_desde_api(url_api: str, token_github: str)
+    }
+
+    class Receta {
+        - id_receta: int
+        - nombre: str
+        - objetivo: str
+        - reactivos_necesarios: dict
+        - procedimiento: str
+        - valores_calculo: dict
+        - ecuaciones: dict
+        - valores_aceptables: dict
+        + __init__(id_receta: int, nombre: str, objetivo: str, reactivos_necesarios: dict, procedimiento: str, valores_calculo: dict, ecuaciones: dict, valores_aceptables: dict)
+        + __str__() : str
+    }
+
+    class Experimento {
+        - receta: Receta
+        - responsables: list
+        - fecha: str
+        - costo_asociado: float
+        - resultado: ResultadoExperimento
+        + __init__(receta: Receta, responsables: list, fecha: str, costo_asociado: float, resultado: ResultadoExperimento)
+        + __str__() : str
+    }
+
+    class ResultadoExperimento {
+        - experimento: Experimento
+        - resultados_obtenidos: dict
+        - resultados_calculados: dict
+        - dentro_parametros: bool
+        + __init__(experimento: Experimento, resultados_obtenidos: dict)
+        + analizar_resultados()
+        + graficar_resultados()
+    }
+
+    class GestorExperimentos {
+        - gestor_reactivos: GestorReactivos
+        - recetas: dict
+        - experimentos: list
+        - ruta_recetas: str
+        - ruta_experimentos: str
+        + __init__(gestor_reactivos: GestorReactivos, url_recetas:str, url_experimentos:str)
+        + agregar_receta(receta: Receta)
+        + eliminar_receta(id_receta: int)
+        + editar_receta(id_receta: int, **kwargs)
+        + buscar_receta(id_receta: int) : Receta
+        + listar_recetas() : list
+        + realizar_experimento(receta_id: int, responsables: list, fecha: str) : Experimento
+        + cargar_recetas(url_recetas:str) : dict
+        + guardar_recetas()
+        + cargar_experimentos(url_experimentos:str) : list
+        + guardar_experimentos()
+        + registrar_resultados(experimento_id: int, resultados_obtenidos: dict) : ResultadoExperimento
+    }
+
+    class IndicadoresGestion {
+        - gestor_experimentos: GestorExperimentos
+        - gestor_reactivos: GestorReactivos
+        + __init__(gestor_experimentos: GestorExperimentos, gestor_reactivos: GestorReactivos)
+        + investigadores_mas_activos() : list
+        + experimentos_mas_y_menos_hechos() : tuple
+        + reactivos_alta_rotacion(top_n: int) : list
+        + reactivos_mas_desperdicio(top_n: int) : list
+        + experimentos_fallidos() : int
+        + graficar_estadisticas()
+    }
+
+    GestorReactivos "1" -- "*" Reactivo : contiene
+    GestorExperimentos "1" -- "*" Receta : contiene
+    GestorExperimentos "1" -- "*" Experimento : contiene
+    Experimento "1" -- "1" Receta : utiliza
+    Experimento "1" -- "1" ResultadoExperimento : tiene
+    GestorExperimentos "1" -- "1" GestorReactivos : utiliza
+    IndicadoresGestion "1" -- "1" GestorExperimentos : utiliza
+    IndicadoresGestion "1" -- "1" GestorReactivos : utiliza
